@@ -286,22 +286,19 @@ through them, is in [`docs/DECISIONS.md`](docs/DECISIONS.md):
 
 ## Project layout
 
-```mermaid
-flowchart LR
-    Root["datadog-triage-agent/"]
-    Root --> Src["src/datadog_triage_agent/"]
-    Root --> Fixtures["fixtures/<br/>six synthetic incidents<br/>(logs + traces + ground truth)"]
-    Root --> Tests["tests/<br/>run offline, no claude CLI"]
-    Root --> Docs["docs/<br/>DESIGN.md + DECISIONS.md"]
-
-    Src --> Agent["agent.py<br/>hand-rolled async triage loop"]
-    Src --> Prompts["prompts.py<br/>system prompt + in-prompt JSON tool protocol"]
-    Src --> Models["models.py<br/>pydantic types (TriageResult, Incident, LogEntry, ...)"]
-    Src --> Config["config.py<br/>Settings.from_env() — single env-read point"]
-    Src --> Console["console.py<br/>ANSI color, TTY-gated (stdlib only)"]
-    Src --> Demo["demo.py<br/>end-to-end triage on one incident"]
-    Src --> LLM["llm/<br/>complete(messages, tools):<br/>claude_cli (default) | anthropic_sdk (swappable)"]
-    Src --> MCP["mcp_backends/<br/>TriageMCPClient (mock) | DatadogMCPClient (remote)"]
-    Src --> MockServer["mock_server/<br/>FastMCP stdio server; strips ground_truth"]
-    Src --> Evals["evals/<br/>harness + judge + rubric"]
+```txt
+src/datadog_triage_agent/
+  agent.py            # the hand-rolled async triage loop
+  prompts.py          # system prompt + in-prompt JSON tool protocol
+  models.py           # pydantic types (TriageResult, Incident, LogEntry, ...)
+  config.py           # Settings.from_env() — single env-read point
+  console.py          # ANSI color for demo / eval / trace, TTY-gated (stdlib only)
+  demo.py             # end-to-end triage on one incident
+  llm/                # complete(messages, tools): claude_cli (default) | anthropic_sdk
+  mcp_backends/       # TriageMCPClient (mock) | DatadogMCPClient (remote)
+  mock_server/        # FastMCP stdio server; serves fixtures; strips ground_truth
+  evals/              # harness + judge + rubric
+fixtures/             # 6 synthetic incidents with correlated logs/traces + ground truth
+tests/                # offline; run without the `claude` CLI
+docs/                 # DESIGN.md (architecture) + DECISIONS.md (decision log)
 ```
