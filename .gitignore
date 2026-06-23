@@ -1,7 +1,9 @@
-# --- Project scaffolding docs (kept out of final submission) ---
+# --- Private working docs (not published; docs/DESIGN.md + docs/DECISIONS.md are) ---
 CLAUDE.md
-docs/
 .claude/
+docs/PLAN.md
+docs/LESSONS.md
+docs/HANDOFF.md
 
 # --- Python ---
 __pycache__/

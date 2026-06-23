@@ -2,7 +2,7 @@
 
 The three tools are exposed as awaitable methods returning plain JSON (dicts/lists).
 The agent serializes whatever they return, so there's no pydantic re-parse here —
-the models stay as shape documentation + the judge/tests' typed view. See LESSONS.
+the models stay as shape documentation + the judge/tests' typed view. See DECISIONS.
 """
 
 from __future__ import annotations

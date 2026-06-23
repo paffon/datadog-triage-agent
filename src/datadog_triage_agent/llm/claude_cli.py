@@ -1,8 +1,8 @@
 """Default LLM provider: the `claude -p` CLI, driven as a pure text engine.
 
-Uses the user's Claude Code subscription (no API key). Built-in tools are
-disabled (`--tools ""`) so the model only follows our in-prompt JSON protocol.
-Flag spellings verified against CLI v2.1.47 — see docs/LESSONS.md.
+Authenticates via the local Claude Code CLI login (no API key needed). Built-in
+tools are disabled (`--tools ""`) so the model only follows our in-prompt JSON
+protocol. Flag spellings verified against CLI v2.1.47 — see docs/DECISIONS.md.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from .base import LLMError
 log = logging.getLogger("triage.llm")  # TRACE = level 3: raw transport
 
 # `claude -p` refuses to launch from inside a Claude Code session (these are set);
-# scrubbing them lets the demo/eval run when invoked under CC. See LESSONS.
+# scrubbing them lets the demo/eval run when invoked under CC. See docs/DECISIONS.md.
 _SCRUB_ENV = ("CLAUDECODE", "CLAUDE_CODE_SSE_PORT")
 
 

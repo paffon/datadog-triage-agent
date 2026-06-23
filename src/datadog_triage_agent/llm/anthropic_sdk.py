@@ -6,7 +6,7 @@ protocol) rather than via native tool use, so the agent loop is identical
 across providers.
 
 Needs `ANTHROPIC_API_KEY` — a Claude *subscription* does NOT include one (see
-docs/LESSONS.md), so this path can't be exercised in the default environment.
+docs/DECISIONS.md), so this path can't be exercised in the default environment.
 Install with `uv sync --extra anthropic`; select with `TRIAGE_LLM=anthropic`.
 """
 

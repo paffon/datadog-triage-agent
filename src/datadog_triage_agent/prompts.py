@@ -1,7 +1,7 @@
 """System prompt, tool catalog, and the corrective nudges the agent loop uses.
 
 The tool-use protocol is in-prompt JSON (not native tool use) so the LLM
-interface stays a single text function across providers. See docs/LESSONS.md.
+interface stays a single text function across providers. See docs/DECISIONS.md.
 """
 
 from __future__ import annotations

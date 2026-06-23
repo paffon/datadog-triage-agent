@@ -4,7 +4,7 @@ remote MCP server over streamable HTTP.
 Opt-in (`TRIAGE_BACKEND=datadog`) and **not exercisable in this environment** —
 the user has no Datadog account. The transport + tool-name mapping are written
 and typed, but every spot that needs confirmation against a live server is
-marked `TODO(datadog-creds)`. See docs/LESSONS.md for the researched tool names.
+marked `TODO(datadog-creds)`. See docs/DECISIONS.md for the researched tool names.
 
 Connection config (URL + auth) is read from env here — same as the mock client
 owns its `StdioServerParameters` — rather than threaded through `Settings`.
@@ -20,7 +20,7 @@ from typing import Any
 from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
 
-# Our tight tool surface -> Datadog's actual remote-MCP tool names (researched, see LESSONS).
+# Our tight tool surface -> Datadog's actual remote-MCP tool names (researched, see DECISIONS).
 # get_traces maps to two Datadog tools depending on whether a trace_id is supplied.
 _DD_SEARCH_LOGS = "search_datadog_logs"
 _DD_SEARCH_SPANS = "search_datadog_spans"

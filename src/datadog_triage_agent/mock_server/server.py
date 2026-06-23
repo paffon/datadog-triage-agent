@@ -9,11 +9,16 @@ stdout is the JSON-RPC channel — never print to it. Logs go to stderr.
 from __future__ import annotations
 
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
+
+# Keep the JSON-RPC stderr clean: the lowlevel server logs an INFO line per request
+# ("Processing request of type ...") that just adds noise to demo/eval output.
+logging.getLogger("mcp").setLevel(logging.WARNING)
 
 mcp = FastMCP("triage-mock")
 
@@ -42,9 +47,9 @@ def search_logs(
     limit: int = 20,
 ) -> list[dict[str, Any]]:
     """Search logs by substring `query` and optional `service`, newest pool wins."""
-    # ponytail: since_minutes accepted for API parity with Datadog, but the mock
-    # fixtures are a fixed point-in-time snapshot so it's a no-op here. Wire real
-    # time-windowing only against the live Datadog backend.
+    # since_minutes is accepted for API parity with Datadog, but the mock fixtures
+    # are a fixed point-in-time snapshot, so it's a no-op here. Real time-windowing
+    # belongs to the live Datadog backend.
     q = query.lower()
 
     def matches(e: dict[str, Any]) -> bool:

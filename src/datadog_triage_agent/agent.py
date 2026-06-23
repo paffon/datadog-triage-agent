@@ -29,8 +29,8 @@ def parse_action(text: str) -> dict[str, Any] | None:
     """Extract the single JSON action object from an LLM reply.
 
     Decodes from the first `{`, so leading/trailing prose and ``` fences are
-    tolerated. ponytail: assumes the first `{` opens the real object — true for
-    our JSON-only protocol; revisit if the model emits decoy braces before it.
+    tolerated. Assumes the first `{` opens the real action object — true for our
+    JSON-only protocol; revisit if the model ever emits decoy braces before it.
     """
     start = text.find("{")
     if start == -1:
