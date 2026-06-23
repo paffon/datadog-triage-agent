@@ -1,0 +1,23 @@
+{
+  "id": "INC-1004",
+  "title": "image-processor pods OOMKilled, intermittent 502s",
+  "severity": "SEV-2",
+  "status": "active",
+  "services": ["image-processor"],
+  "started_at": "2026-06-20T03:00:00Z",
+  "error_signature": "Pod OOMKilled (exit code 137); intermittent 502 during restarts",
+  "summary": "image-processor pods have been OOMKilled and restarted roughly every 20 minutes since ~03:00 UTC, causing intermittent 502s as in-flight requests are dropped. Memory climbs steadily between restarts (sawtooth) and resets after each kill.",
+  "ground_truth": {
+    "root_cause": "image-processor has a memory leak: decoded image buffers are stored in a module-level cache that is never evicted, so RSS grows monotonically until the container hits its 2GB memory limit and the kernel OOMKills it (exit 137). Each kill drops in-flight requests (502) and the cycle repeats. The 502s are a symptom of the restart loop, not a request-handling bug.",
+    "key_evidence": [
+      "log: 'Container OOMKilled (exit code 137), restarting pod image-processor-7c9' recurring every ~20m",
+      "log: heap climbs to '1980MB/2048MB' before each kill and resets to ~210MB after restart (sawtooth)",
+      "502s cluster exactly at restart timestamps; the unbounded 'image buffer cache' has no eviction configured"
+    ],
+    "expected_fix_themes": [
+      "fix the leak: bound/evict the image buffer cache (LRU with a max size) or stop caching decoded buffers",
+      "raise the memory limit only as a stopgap and add a heap/RSS alert that fires before OOM",
+      "add graceful shutdown + readiness gating so restarts drain in-flight requests instead of returning 502"
+    ]
+  }
+}

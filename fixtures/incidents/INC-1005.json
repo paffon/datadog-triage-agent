@@ -1,0 +1,23 @@
+{
+  "id": "INC-1005",
+  "title": "auth-service login failures after partner credential expiry",
+  "severity": "SEV-1",
+  "status": "active",
+  "services": ["auth-service", "partner-api"],
+  "started_at": "2026-06-19T00:00:00Z",
+  "error_signature": "401 Unauthorized from partner-api (token expired) -> 403 login denied",
+  "summary": "Starting exactly at 00:00 UTC, auth-service stopped minting sessions: calls to partner-api (used for identity verification) return 401, cascading into 403 login failures for all users. No deploy occurred and traffic is flat.",
+  "ground_truth": {
+    "root_cause": "The API credential auth-service uses to call partner-api expired at 2026-06-19T00:00:00Z. partner-api now rejects every request with 401 ('token expired'), so auth-service cannot complete identity verification and denies all logins with 403. The midnight-sharp onset, absence of any deploy, and flat traffic point to a credential/cert lifecycle expiry, not a code or load problem.",
+    "key_evidence": [
+      "partner-api log: '401 Unauthorized: API token expired at 2026-06-19T00:00:00Z (kid=key-2025-06)'",
+      "auth-service log: 'identity verification failed: partner-api returned 401' then '403 login denied'",
+      "auth-service log: 'no deploys in last 24h; traffic nominal' - rules out a bad deploy or load spike"
+    ],
+    "expected_fix_themes": [
+      "rotate/renew the expired partner-api credential (and signing cert if applicable) to restore logins",
+      "add expiry monitoring and alerts ahead of credential/cert expiration",
+      "automate credential rotation and fail closed with a clear error + runbook instead of a silent cascade"
+    ]
+  }
+}

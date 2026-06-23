@@ -1,0 +1,58 @@
+[
+  {
+    "timestamp": "2026-06-20T03:01:10Z",
+    "service": "image-processor",
+    "level": "INFO",
+    "message": "heap 820MB/2048MB, processed 5120 images",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-20T03:09:30Z",
+    "service": "image-processor",
+    "level": "WARN",
+    "message": "image buffer cache size 14200 entries (no eviction configured)",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-20T03:18:44Z",
+    "service": "image-processor",
+    "level": "WARN",
+    "message": "heap 1980MB/2048MB - approaching memory limit",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-20T03:19:01Z",
+    "service": "image-processor",
+    "level": "ERROR",
+    "message": "Container OOMKilled (exit code 137), restarting pod image-processor-7c9",
+    "trace_id": null,
+    "status_code": 137
+  },
+  {
+    "timestamp": "2026-06-20T03:19:02Z",
+    "service": "image-processor",
+    "level": "ERROR",
+    "message": "502 Bad Gateway: upstream image-processor connection reset during restart",
+    "trace_id": "tr-1004-a",
+    "status_code": 502
+  },
+  {
+    "timestamp": "2026-06-20T03:19:35Z",
+    "service": "image-processor",
+    "level": "INFO",
+    "message": "pod image-processor-7c9 restarted, heap 210MB/2048MB",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-20T04:30:00Z",
+    "service": "image-processor",
+    "level": "WARN",
+    "message": "OOMKilled 4 times in last 90 minutes (restart loop)",
+    "trace_id": null,
+    "status_code": null
+  }
+]

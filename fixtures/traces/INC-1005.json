@@ -1,0 +1,46 @@
+[
+  {
+    "trace_id": "tr-1005-a",
+    "root_service": "auth-service",
+    "duration_ms": 95,
+    "error": true,
+    "spans": [
+      {
+        "service": "auth-service",
+        "op": "POST /login",
+        "duration_ms": 95,
+        "error": true,
+        "status": "403"
+      },
+      {
+        "service": "partner-api",
+        "op": "verify_identity",
+        "duration_ms": 60,
+        "error": true,
+        "status": "401"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr-1005-ok",
+    "root_service": "auth-service",
+    "duration_ms": 88,
+    "error": false,
+    "spans": [
+      {
+        "service": "auth-service",
+        "op": "POST /login",
+        "duration_ms": 88,
+        "error": false,
+        "status": "200"
+      },
+      {
+        "service": "partner-api",
+        "op": "verify_identity",
+        "duration_ms": 55,
+        "error": false,
+        "status": "200"
+      }
+    ]
+  }
+]

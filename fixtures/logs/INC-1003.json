@@ -1,0 +1,50 @@
+[
+  {
+    "timestamp": "2026-06-22T16:40:05Z",
+    "service": "search-service",
+    "level": "INFO",
+    "message": "deploy v2.4.0 complete (commit a1b2c3d): added GET /recommendations",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-22T16:40:22Z",
+    "service": "search-service",
+    "level": "ERROR",
+    "message": "unhandled exception on GET /recommendations",
+    "trace_id": "tr-1003-a",
+    "status_code": 500
+  },
+  {
+    "timestamp": "2026-06-22T16:40:22Z",
+    "service": "search-service",
+    "level": "ERROR",
+    "message": "AttributeError: 'NoneType' object has no attribute 'get' at recommendations.py:54",
+    "trace_id": "tr-1003-a",
+    "status_code": 500
+  },
+  {
+    "timestamp": "2026-06-22T16:40:30Z",
+    "service": "search-service",
+    "level": "INFO",
+    "message": "GET /search 200 in 12ms",
+    "trace_id": "tr-1003-ok",
+    "status_code": 200
+  },
+  {
+    "timestamp": "2026-06-22T16:41:00Z",
+    "service": "search-service",
+    "level": "WARN",
+    "message": "error rate on /recommendations: 87% since 16:40 (was 0% pre-deploy)",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-22T16:41:18Z",
+    "service": "search-service",
+    "level": "ERROR",
+    "message": "unhandled exception on GET /recommendations",
+    "trace_id": "tr-1003-b",
+    "status_code": 500
+  }
+]

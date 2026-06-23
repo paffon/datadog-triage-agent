@@ -1,0 +1,23 @@
+{
+  "id": "INC-1003",
+  "title": "search-service 500s immediately after v2.4.0 deploy",
+  "severity": "SEV-2",
+  "status": "active",
+  "services": ["search-service"],
+  "started_at": "2026-06-22T16:40:00Z",
+  "error_signature": "500 Internal Server Error on GET /recommendations (NoneType)",
+  "summary": "Immediately after the v2.4.0 rollout at 16:40 UTC, search-service began throwing 500s isolated to the newly added /recommendations endpoint. Other endpoints (e.g. /search) are healthy and traffic is flat.",
+  "ground_truth": {
+    "root_cause": "v2.4.0 added a /recommendations endpoint that reads user_profile.preferences.get(...) without a null check. For users who have no saved preferences, preferences is None, raising AttributeError ('NoneType' object has no attribute 'get') and returning 500. The bug shipped in the new release: error rate steps from 0% to ~87% exactly at deploy time and is confined to the new endpoint.",
+    "key_evidence": [
+      "search-service log: 'deploy v2.4.0 complete (commit a1b2c3d)' at 16:40, immediately followed by 500s",
+      "search-service log: \"AttributeError: 'NoneType' object has no attribute 'get' at recommendations.py:54\"",
+      "errors occur only on GET /recommendations (the new endpoint); GET /search is unaffected"
+    ],
+    "expected_fix_themes": [
+      "add a null/default guard for users without preferences (or backfill default preferences)",
+      "roll back v2.4.0 or ship a forward hotfix to the recommendations handler",
+      "add a regression test for the no-preferences case and gate new endpoints behind a feature flag"
+    ]
+  }
+}

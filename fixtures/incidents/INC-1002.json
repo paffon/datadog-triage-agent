@@ -1,0 +1,23 @@
+{
+  "id": "INC-1002",
+  "title": "orders-api latency spike and 503s during traffic surge",
+  "severity": "SEV-2",
+  "status": "active",
+  "services": ["orders-api", "orders-db"],
+  "started_at": "2026-06-21T09:15:00Z",
+  "error_signature": "503 Service Unavailable from orders-api; DB connection pool acquire timeout",
+  "summary": "orders-api p99 latency jumped from ~120ms to >5s and it began returning 503s around 09:15 UTC, coinciding with a marketing-campaign traffic surge. orders-db reports it is healthy.",
+  "ground_truth": {
+    "root_cause": "orders-api's client-side connection pool to orders-db (max 20) was exhausted under the traffic surge. New requests block waiting for a free connection, exceed the 5s acquire timeout, and return 503. The database itself has headroom (42/100 connections) — the bottleneck is the undersized client pool, worsened by a slow unindexed query holding connections longer.",
+    "key_evidence": [
+      "orders-api log: 'could not acquire DB connection from pool within 5000ms (active=20/20, waiting=37)'",
+      "orders-db log: 'connection count 42/100 — within limits' (the DB is not the limit; the client pool is)",
+      "trace tr-1002-a: GET /orders spends ~4980ms in the 'db.acquire' span and never reaches the query"
+    ],
+    "expected_fix_themes": [
+      "increase the orders-api DB pool size (and DB max_connections) to match real concurrency",
+      "shorten transaction scope / fix slow query (add index on orders.user_id) so connections return faster",
+      "add backpressure or autoscaling and tune the acquire timeout so a surge degrades gracefully"
+    ]
+  }
+}

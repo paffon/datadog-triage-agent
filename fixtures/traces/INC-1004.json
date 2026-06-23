@@ -1,0 +1,46 @@
+[
+  {
+    "trace_id": "tr-1004-a",
+    "root_service": "image-processor",
+    "duration_ms": 30000,
+    "error": true,
+    "spans": [
+      {
+        "service": "image-processor",
+        "op": "POST /process",
+        "duration_ms": 30000,
+        "error": true,
+        "status": "502"
+      },
+      {
+        "service": "image-processor",
+        "op": "decode_image",
+        "duration_ms": 120,
+        "error": true,
+        "status": "connection reset"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr-1004-ok",
+    "root_service": "image-processor",
+    "duration_ms": 240,
+    "error": false,
+    "spans": [
+      {
+        "service": "image-processor",
+        "op": "POST /process",
+        "duration_ms": 240,
+        "error": false,
+        "status": "200"
+      },
+      {
+        "service": "image-processor",
+        "op": "decode_image",
+        "duration_ms": 180,
+        "error": false,
+        "status": "200"
+      }
+    ]
+  }
+]

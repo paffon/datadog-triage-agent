@@ -1,0 +1,60 @@
+[
+  {
+    "trace_id": "tr-1006-a",
+    "root_service": "notifications-service",
+    "duration_ms": 1340,
+    "error": true,
+    "spans": [
+      {
+        "service": "notifications-service",
+        "op": "POST /send",
+        "duration_ms": 1340,
+        "error": true,
+        "status": "502"
+      },
+      {
+        "service": "sms-provider",
+        "op": "send_sms (attempt 1)",
+        "duration_ms": 40,
+        "error": true,
+        "status": "429"
+      },
+      {
+        "service": "sms-provider",
+        "op": "send_sms (retry 2)",
+        "duration_ms": 38,
+        "error": true,
+        "status": "429"
+      },
+      {
+        "service": "sms-provider",
+        "op": "send_sms (retry 3)",
+        "duration_ms": 41,
+        "error": true,
+        "status": "429"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr-1006-ok",
+    "root_service": "notifications-service",
+    "duration_ms": 70,
+    "error": false,
+    "spans": [
+      {
+        "service": "notifications-service",
+        "op": "POST /send",
+        "duration_ms": 70,
+        "error": false,
+        "status": "200"
+      },
+      {
+        "service": "sms-provider",
+        "op": "send_sms",
+        "duration_ms": 45,
+        "error": false,
+        "status": "200"
+      }
+    ]
+  }
+]

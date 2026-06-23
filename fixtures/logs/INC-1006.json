@@ -1,0 +1,50 @@
+[
+  {
+    "timestamp": "2026-06-18T12:30:02Z",
+    "service": "sms-provider",
+    "level": "ERROR",
+    "message": "429 Too Many Requests: account quota 100 req/s exceeded (current 380 req/s)",
+    "trace_id": "tr-1006-a",
+    "status_code": 429
+  },
+  {
+    "timestamp": "2026-06-18T12:30:02Z",
+    "service": "notifications-service",
+    "level": "WARN",
+    "message": "sms-provider returned 429, retry 1/3 immediately",
+    "trace_id": "tr-1006-a",
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-18T12:30:02Z",
+    "service": "notifications-service",
+    "level": "WARN",
+    "message": "sms-provider returned 429, retry 3/3 immediately (no backoff)",
+    "trace_id": "tr-1006-a",
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-18T12:30:03Z",
+    "service": "notifications-service",
+    "level": "ERROR",
+    "message": "failed to send SMS after 3 retries: 429 from sms-provider",
+    "trace_id": "tr-1006-a",
+    "status_code": 502
+  },
+  {
+    "timestamp": "2026-06-18T12:31:00Z",
+    "service": "notifications-service",
+    "level": "WARN",
+    "message": "outbound rate to sms-provider 380 req/s vs inbound send rate 95 req/s (4x amplification)",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-18T12:31:20Z",
+    "service": "sms-provider",
+    "level": "INFO",
+    "message": "Retry-After: 5 header sent on 429 responses; clients not honoring it",
+    "trace_id": null,
+    "status_code": null
+  }
+]

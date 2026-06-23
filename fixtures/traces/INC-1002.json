@@ -1,0 +1,53 @@
+[
+  {
+    "trace_id": "tr-1002-a",
+    "root_service": "orders-api",
+    "duration_ms": 5012,
+    "error": true,
+    "spans": [
+      {
+        "service": "orders-api",
+        "op": "GET /orders",
+        "duration_ms": 5012,
+        "error": true,
+        "status": "503"
+      },
+      {
+        "service": "orders-api",
+        "op": "db.acquire",
+        "duration_ms": 4980,
+        "error": true,
+        "status": "timeout"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr-1002-ok",
+    "root_service": "orders-api",
+    "duration_ms": 138,
+    "error": false,
+    "spans": [
+      {
+        "service": "orders-api",
+        "op": "GET /orders",
+        "duration_ms": 138,
+        "error": false,
+        "status": "200"
+      },
+      {
+        "service": "orders-api",
+        "op": "db.acquire",
+        "duration_ms": 6,
+        "error": false,
+        "status": "ok"
+      },
+      {
+        "service": "orders-db",
+        "op": "SELECT orders",
+        "duration_ms": 22,
+        "error": false,
+        "status": "200"
+      }
+    ]
+  }
+]

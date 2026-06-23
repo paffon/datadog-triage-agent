@@ -1,0 +1,50 @@
+[
+  {
+    "timestamp": "2026-06-19T00:00:03Z",
+    "service": "partner-api",
+    "level": "ERROR",
+    "message": "401 Unauthorized: API token expired at 2026-06-19T00:00:00Z (kid=key-2025-06)",
+    "trace_id": "tr-1005-a",
+    "status_code": 401
+  },
+  {
+    "timestamp": "2026-06-19T00:00:03Z",
+    "service": "auth-service",
+    "level": "ERROR",
+    "message": "identity verification failed: partner-api returned 401",
+    "trace_id": "tr-1005-a",
+    "status_code": 403
+  },
+  {
+    "timestamp": "2026-06-19T00:00:04Z",
+    "service": "auth-service",
+    "level": "ERROR",
+    "message": "403 login denied for user u-55021: upstream auth unavailable",
+    "trace_id": "tr-1005-a",
+    "status_code": 403
+  },
+  {
+    "timestamp": "2026-06-19T00:01:00Z",
+    "service": "auth-service",
+    "level": "WARN",
+    "message": "login success rate 0% over last 5m (was ~99%)",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-19T00:01:30Z",
+    "service": "auth-service",
+    "level": "INFO",
+    "message": "no deploys in last 24h; traffic nominal",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-19T00:02:10Z",
+    "service": "partner-api",
+    "level": "INFO",
+    "message": "token kid=key-2025-06 rejected: expired; rotate to an active key",
+    "trace_id": null,
+    "status_code": null
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "trace_id": "tr-1003-a",
+    "root_service": "search-service",
+    "duration_ms": 38,
+    "error": true,
+    "spans": [
+      {
+        "service": "search-service",
+        "op": "GET /recommendations",
+        "duration_ms": 38,
+        "error": true,
+        "status": "500"
+      },
+      {
+        "service": "search-service",
+        "op": "load_user_profile",
+        "duration_ms": 12,
+        "error": false,
+        "status": "200"
+      },
+      {
+        "service": "search-service",
+        "op": "build_recommendations",
+        "duration_ms": 4,
+        "error": true,
+        "status": "AttributeError"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr-1003-ok",
+    "root_service": "search-service",
+    "duration_ms": 12,
+    "error": false,
+    "spans": [
+      {
+        "service": "search-service",
+        "op": "GET /search",
+        "duration_ms": 12,
+        "error": false,
+        "status": "200"
+      }
+    ]
+  }
+]

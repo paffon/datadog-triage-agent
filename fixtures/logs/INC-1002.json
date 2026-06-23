@@ -1,0 +1,58 @@
+[
+  {
+    "timestamp": "2026-06-21T09:14:40Z",
+    "service": "orders-api",
+    "level": "INFO",
+    "message": "inbound traffic +320% vs baseline (campaign promo-summer)",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-21T09:15:02Z",
+    "service": "orders-api",
+    "level": "WARN",
+    "message": "DB connection pool nearing capacity (active=18/20)",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-21T09:15:21Z",
+    "service": "orders-db",
+    "level": "INFO",
+    "message": "connection count 42/100 - within limits, CPU 38%",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-21T09:15:22Z",
+    "service": "orders-db",
+    "level": "WARN",
+    "message": "slow query 'SELECT * FROM orders WHERE user_id=$1' took 1280ms (no index on user_id)",
+    "trace_id": "tr-1002-a",
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-21T09:15:24Z",
+    "service": "orders-api",
+    "level": "ERROR",
+    "message": "could not acquire DB connection from pool within 5000ms (active=20/20, waiting=37)",
+    "trace_id": "tr-1002-a",
+    "status_code": 503
+  },
+  {
+    "timestamp": "2026-06-21T09:15:24Z",
+    "service": "orders-api",
+    "level": "ERROR",
+    "message": "GET /orders failed: pool acquire timeout",
+    "trace_id": "tr-1002-a",
+    "status_code": 503
+  },
+  {
+    "timestamp": "2026-06-21T09:16:00Z",
+    "service": "orders-api",
+    "level": "WARN",
+    "message": "p99 latency 5240ms over last 60s (threshold 800ms)",
+    "trace_id": null,
+    "status_code": null
+  }
+]

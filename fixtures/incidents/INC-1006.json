@@ -1,0 +1,23 @@
+{
+  "id": "INC-1006",
+  "title": "notifications-service failures: SMS provider 429s amplified by retry storm",
+  "severity": "SEV-2",
+  "status": "active",
+  "services": ["notifications-service", "sms-provider"],
+  "started_at": "2026-06-18T12:30:00Z",
+  "error_signature": "429 Too Many Requests from sms-provider; retries amplifying load",
+  "summary": "notifications-service began failing to send SMS around 12:30 UTC. sms-provider returns 429; notifications-service retries immediately without backoff, multiplying outbound volume and sustaining the throttling into a steady failure.",
+  "ground_truth": {
+    "root_cause": "sms-provider started rate-limiting (429) once notification volume crossed its account quota (100 req/s). notifications-service retries 429s immediately with no backoff, no jitter, and ignoring Retry-After, so each throttled request becomes 3-4 more requests (~4x amplification). This self-inflicted retry storm keeps the provider permanently over its limit. The trigger is the provider quota; the amplifier is the naive retry policy.",
+    "key_evidence": [
+      "sms-provider log: '429 Too Many Requests: account quota 100 req/s exceeded (current 380 req/s)'",
+      "notifications-service log: 'sms-provider returned 429, retry 3/3 immediately (no backoff)'",
+      "notifications-service log: outbound rate 380 req/s vs inbound send rate 95 req/s (~4x amplification)"
+    ],
+    "expected_fix_themes": [
+      "add exponential backoff + jitter and honor the provider's Retry-After header",
+      "cap retries and shed/queue load (token-bucket rate limiter) to stay under the provider quota",
+      "add a circuit breaker so sustained 429s stop the retry storm; request a higher quota or batch sends"
+    ]
+  }
+}
