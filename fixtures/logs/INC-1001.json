@@ -1,0 +1,66 @@
+[
+  {
+    "timestamp": "2026-06-23T14:01:50Z",
+    "service": "payment-gateway",
+    "level": "WARN",
+    "message": "connection pool to payment processor saturated (active=64/64), queuing requests",
+    "trace_id": null,
+    "status_code": null
+  },
+  {
+    "timestamp": "2026-06-23T14:02:03Z",
+    "service": "payment-gateway",
+    "level": "ERROR",
+    "message": "upstream payment processor timeout after 30000ms on POST /v2/charges",
+    "trace_id": "tr-1001-a",
+    "status_code": 504
+  },
+  {
+    "timestamp": "2026-06-23T14:02:03Z",
+    "service": "checkout-service",
+    "level": "ERROR",
+    "message": "payment-gateway call failed: 504 Gateway Timeout",
+    "trace_id": "tr-1001-a",
+    "status_code": 502
+  },
+  {
+    "timestamp": "2026-06-23T14:02:04Z",
+    "service": "checkout-service",
+    "level": "ERROR",
+    "message": "checkout failed for order ord-88213: upstream payment error",
+    "trace_id": "tr-1001-a",
+    "status_code": 500
+  },
+  {
+    "timestamp": "2026-06-23T14:02:31Z",
+    "service": "payment-gateway",
+    "level": "ERROR",
+    "message": "upstream payment processor timeout after 30000ms on POST /v2/charges",
+    "trace_id": "tr-1001-b",
+    "status_code": 504
+  },
+  {
+    "timestamp": "2026-06-23T14:02:31Z",
+    "service": "checkout-service",
+    "level": "ERROR",
+    "message": "payment-gateway call failed: 504 Gateway Timeout",
+    "trace_id": "tr-1001-b",
+    "status_code": 502
+  },
+  {
+    "timestamp": "2026-06-23T14:02:40Z",
+    "service": "cart-service",
+    "level": "INFO",
+    "message": "cart ord-88213 persisted, awaiting checkout confirmation",
+    "trace_id": null,
+    "status_code": 200
+  },
+  {
+    "timestamp": "2026-06-23T14:03:10Z",
+    "service": "checkout-service",
+    "level": "WARN",
+    "message": "payment success rate over last 60s: 41% (threshold 95%)",
+    "trace_id": null,
+    "status_code": null
+  }
+]

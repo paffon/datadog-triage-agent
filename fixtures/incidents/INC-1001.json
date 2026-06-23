@@ -1,0 +1,23 @@
+{
+  "id": "INC-1001",
+  "title": "Checkout failures spiking — payments timing out",
+  "severity": "SEV-1",
+  "status": "active",
+  "services": ["checkout-service", "payment-gateway"],
+  "started_at": "2026-06-23T14:02:00Z",
+  "error_signature": "504 Gateway Timeout from payment-gateway",
+  "summary": "Checkout success rate dropped from ~99% to ~40% beginning around 14:02 UTC. Users report errors at the payment step. checkout-service is emitting 5xx; payment-gateway is the named dependency.",
+  "ground_truth": {
+    "root_cause": "payment-gateway's upstream payment processor started timing out (~30s). checkout-service calls payment-gateway synchronously, so those calls exceed the timeout and return 5xx, cascading into a checkout failure spike. The fault originates upstream of payment-gateway, not in checkout-service itself.",
+    "key_evidence": [
+      "payment-gateway logs: 'upstream payment processor timeout after 30000ms' returning 504",
+      "checkout-service logs: 'payment-gateway call failed: 504 Gateway Timeout' returning 502",
+      "trace shows POST /checkout at ~30500ms with an errored payment-gateway 'charge' span (~30000ms) waiting on the processor"
+    ],
+    "expected_fix_themes": [
+      "lower/bound the payment-gateway upstream timeout so it fails fast",
+      "decouple checkout from the synchronous payment call (async, queue, or circuit breaker with fallback)",
+      "add bounded retries with backoff + idempotency keys, and surface a clear user-facing error instead of a hang"
+    ]
+  }
+}

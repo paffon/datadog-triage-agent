@@ -1,0 +1,53 @@
+[
+  {
+    "trace_id": "tr-1001-a",
+    "root_service": "checkout-service",
+    "duration_ms": 30512,
+    "error": true,
+    "spans": [
+      {
+        "service": "checkout-service",
+        "op": "POST /checkout",
+        "duration_ms": 30512,
+        "error": true,
+        "status": "502"
+      },
+      {
+        "service": "payment-gateway",
+        "op": "charge",
+        "duration_ms": 30018,
+        "error": true,
+        "status": "504"
+      },
+      {
+        "service": "payment-gateway",
+        "op": "POST processor /v2/charges",
+        "duration_ms": 30001,
+        "error": true,
+        "status": "timeout"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr-1001-ok",
+    "root_service": "checkout-service",
+    "duration_ms": 412,
+    "error": false,
+    "spans": [
+      {
+        "service": "checkout-service",
+        "op": "POST /checkout",
+        "duration_ms": 412,
+        "error": false,
+        "status": "200"
+      },
+      {
+        "service": "payment-gateway",
+        "op": "charge",
+        "duration_ms": 180,
+        "error": false,
+        "status": "200"
+      }
+    ]
+  }
+]
