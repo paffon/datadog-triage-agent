@@ -8,12 +8,16 @@ Flag spellings verified against CLI v2.1.47 — see docs/LESSONS.md.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import subprocess
 from dataclasses import dataclass
 
+from ..config import TRACE
 from ..models import LLMMessage, ToolSpec
 from .base import LLMError
+
+log = logging.getLogger("triage.llm")  # TRACE = level 3: raw transport
 
 # `claude -p` refuses to launch from inside a Claude Code session (these are set);
 # scrubbing them lets the demo/eval run when invoked under CC. See LESSONS.
@@ -35,14 +39,24 @@ class ClaudeCLI:
     binary: str = "claude"
     timeout: float = 120.0
 
+    def _construct_transcript(self, messages: list[LLMMessage]) -> str:
+        transcript = "\n\n".join(
+            f"[{m.role}]\n{m.content}" for m in messages if m.role != "system"
+        )
+        end_with = (
+            "Now write only the next assistant message: a single JSON object and nothing else — "
+            'either {"action":"call_tool",...} to gather more evidence, or {"action":"final",...} '
+            "if the evidence already points to a root cause. Don't keep investigating once the answer is clear."
+        )
+        return transcript + "\n\n" + end_with
+
     def complete(self, messages: list[LLMMessage], tools: list[ToolSpec]) -> str:
         system_parts = [m.content for m in messages if m.role == "system"]
         if tools:
             system_parts.append(_render_tools(tools))
         system = "\n\n".join(system_parts)
-        transcript = "\n\n".join(
-            f"[{m.role}]\n{m.content}" for m in messages if m.role != "system"
-        )
+
+        transcript = self._construct_transcript(messages)
 
         cmd = [
             self.binary, "-p", transcript,
@@ -56,6 +70,7 @@ class ClaudeCLI:
         if system:
             cmd += ["--append-system-prompt", system]
 
+        log.log(TRACE, "claude -p argv: %s", cmd)
         env = {k: v for k, v in os.environ.items() if k not in _SCRUB_ENV}
 
         try:
@@ -68,6 +83,8 @@ class ClaudeCLI:
             raise LLMError(f"`{self.binary}` not found on PATH") from e
         except subprocess.TimeoutExpired as e:
             raise LLMError(f"`claude -p` timed out after {self.timeout}s") from e
+
+        log.log(TRACE, "claude -p stdout: %s", proc.stdout)
 
         if proc.returncode != 0:
             raise LLMError(f"`claude -p` exited {proc.returncode}: {proc.stderr.strip()}")

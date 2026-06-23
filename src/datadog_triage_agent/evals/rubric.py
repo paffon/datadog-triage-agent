@@ -31,5 +31,8 @@ agent's result against the ground truth using this rubric.
 {RUBRIC}
 
 Respond with EXACTLY ONE JSON object and nothing else - no prose, no markdown fences:
-{{"scores": {{"root_cause": 0, "reproduction": 0, "grounding": 0}}, "justification": "<2-3 sentences>"}}
+{{"scores": {{"root_cause": 0, "reproduction": 0, "grounding": 0}},
+"justification": "<2-3 sentences. If the agent missed something, 
+be explicit on whether it didn't call the right tool with the right parameters, 
+or it called the right tool but misinterpreted the evidence.>"}}
 """

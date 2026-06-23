@@ -6,6 +6,8 @@ replies, bad tool calls, and schema-invalid finals.
 from __future__ import annotations
 
 import json
+import logging
+from textwrap import indent
 from typing import Any
 
 from pydantic import ValidationError
@@ -15,6 +17,8 @@ from .models import LLMMessage, TriageResult
 from .prompts import FORCE_FINAL, NUDGE_UNPARSEABLE, SYSTEM_PROMPT, TOOLS
 
 TOOL_NAMES = {t.name for t in TOOLS}
+
+log = logging.getLogger("triage.agent")  # info = trace level 1, debug = level 2
 
 
 class AgentError(RuntimeError):
@@ -51,19 +55,24 @@ async def triage(
         LLMMessage(role="user", content=f"Triage incident {incident_id}. Begin your investigation."),
     ]
 
-    for _ in range(max_turns):
+    for turn in range(1, max_turns + 1):
+        log.info("── turn %d/%d ──\n", turn, max_turns)
         reply = llm.complete(messages, TOOLS)
         messages.append(LLMMessage(role="assistant", content=reply))
+        log.debug("assistant:\n%s", indent(reply, "  "))
         action = parse_action(reply)
 
         if action is None:
+            log.info("· unparseable reply — nudging")
             messages.append(LLMMessage(role="user", content=NUDGE_UNPARSEABLE))
             continue
 
         if action["action"] == "final":
             result = _validate_final(action)
             if result is not None:
+                log.info("✓ final (confidence=%s)", result.confidence)
                 return result
+            log.info("· final failed schema — asking for a corrected object")
             messages.append(LLMMessage(
                 role="user",
                 content="That result did not match the required schema. "
@@ -73,6 +82,7 @@ async def triage(
 
         tool = action.get("tool")
         if tool not in TOOL_NAMES:
+            log.info("· unknown tool %r — listing available tools", tool)
             messages.append(LLMMessage(
                 role="user",
                 content=f"Unknown tool {tool!r}. Available tools: {sorted(TOOL_NAMES)}.",
@@ -80,15 +90,21 @@ async def triage(
             continue
 
         args = action.get("arguments")
+        log.info("→ call_tool %s %s\n", tool, args if isinstance(args, dict) else {})
         observation = await _call_tool(mcp, tool, args if isinstance(args, dict) else {})
+        log.info("← %s:\n\n%s\n", tool, indent(observation, "  "))
         messages.append(LLMMessage(role="user", content=f"Observation from {tool}:\n{observation}"))
 
     # Out of budget: one forced synthesis attempt.
+    log.info("· out of budget after %d turns — forcing synthesis", max_turns)
     messages.append(LLMMessage(role="user", content=FORCE_FINAL))
-    action = parse_action(llm.complete(messages, TOOLS))
+    reply = llm.complete(messages, TOOLS)
+    log.debug("assistant:\n%s", indent(reply, "  "))
+    action = parse_action(reply)
     if action is not None and action["action"] == "final":
         result = _validate_final(action)
         if result is not None:
+            log.info("✓ final (confidence=%s)", result.confidence)
             return result
     raise AgentError(f"no valid TriageResult after {max_turns} turns")
 

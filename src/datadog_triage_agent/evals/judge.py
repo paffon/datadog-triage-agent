@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import json
+import logging
+from textwrap import indent
 from typing import Any
 
 from ..llm.base import LLMClient
 from ..models import LLMMessage, TriageResult
 from .rubric import DIMENSIONS, JUDGE_PROMPT, MAX_PER_DIM
+
+log = logging.getLogger("triage.judge")  # info = trace level 1, debug = level 2
 
 
 class JudgeError(RuntimeError):
@@ -29,15 +33,20 @@ def judge(
         LLMMessage(role="system", content=JUDGE_PROMPT),
         LLMMessage(role="user", content=json.dumps(payload, indent=2)),
     ]
-    obj = _extract_obj(llm.complete(messages, []))
+    log.debug("judge payload:\n%s", json.dumps(payload, indent=2))
+    raw = llm.complete(messages, [])
+    log.debug("judge response:\n%s", indent(raw, "  "))
+    obj = _extract_obj(raw)
     if obj is None:
         raise JudgeError("judge did not return a JSON object")
     scores = _validate_scores(obj.get("scores"))
+    justification = str(obj.get("justification", ""))
+    log.info("scores %s total=%d — %s", scores, sum(scores.values()), justification)
     return {
         "scores": scores,
         "total": sum(scores.values()),
         "max": len(DIMENSIONS) * MAX_PER_DIM,
-        "justification": str(obj.get("justification", "")),
+        "justification": justification,
     }
 
 

@@ -1,6 +1,6 @@
 """End-to-end triage demo on one mock incident.
 
-Usage: ./run.ps1 demo [INC-1001]   (default INC-1001)
+Usage: ./run.ps1 demo [INC-1001] [-v|-vv|-vvv]   (default INC-1001; -v traces to stderr)
 First real end-to-end path: real `claude -p` + the mock MCP server over stdio.
 """
 
@@ -10,7 +10,7 @@ import asyncio
 import sys
 
 from .agent import triage
-from .config import Settings, force_utf8_stdout
+from .config import Settings, force_utf8_stdout, setup_trace, trace_level
 from .llm import get_llm
 from .mcp_backends import get_mcp_client
 from .models import TriageResult
@@ -45,7 +45,9 @@ async def _run(incident_id: str) -> TriageResult:
 
 def main() -> None:
     force_utf8_stdout()
-    incident_id = sys.argv[1] if len(sys.argv) > 1 else "INC-1001"
+    setup_trace(trace_level(sys.argv[1:]))
+    positional = [a for a in sys.argv[1:] if not a.startswith("-")]
+    incident_id = positional[0] if positional else "INC-1001"
     print(_render(asyncio.run(_run(incident_id))))
 
 

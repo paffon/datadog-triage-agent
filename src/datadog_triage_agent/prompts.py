@@ -25,8 +25,8 @@ TOOLS: list[ToolSpec] = [
         ),
         parameters={
             "query": 'case-insensitive substring of the message ("" matches everything)',
-            "service": "optional: restrict to one service",
-            "limit": "optional: max rows (default 20)",
+            "service": "(optional) restrict to one service",
+            "limit": "(optional) max rows (default 20)",
         },
     ),
     ToolSpec(
@@ -36,10 +36,10 @@ TOOLS: list[ToolSpec] = [
             "and spans (service/op/duration_ms/error/status)."
         ),
         parameters={
-            "service": "optional: traces where this service is the root or in any span",
-            "trace_id": "optional: a specific trace id",
-            "min_duration_ms": "optional: only traces at least this slow",
-            "limit": "optional: max rows (default 10)",
+            "service": "(optional) traces where this service is the root or in any span",
+            "trace_id": "(optional) a specific trace id",
+            "min_duration_ms": "(optional) only traces at least this slow",
+            "limit": "(optional) max rows (default 10)",
         },
     ),
 ]

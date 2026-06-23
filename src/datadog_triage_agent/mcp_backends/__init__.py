@@ -4,13 +4,12 @@ backend-agnostic — only this factory and the client differ."""
 from __future__ import annotations
 
 from .client import TriageMCPClient
+from .datadog import DatadogMCPClient
 
 
-def get_mcp_client(backend: str = "mock") -> TriageMCPClient:
+def get_mcp_client(backend: str = "mock") -> TriageMCPClient | DatadogMCPClient:
     if backend == "mock":
         return TriageMCPClient()
     if backend == "datadog":
-        raise NotImplementedError(
-            "Datadog backend not wired yet (Phase 5). Use TRIAGE_BACKEND=mock."
-        )
+        return DatadogMCPClient()  # opt-in, needs creds; not exercisable here — see datadog.py
     raise ValueError(f"unknown TRIAGE_BACKEND: {backend!r} (use mock | datadog)")

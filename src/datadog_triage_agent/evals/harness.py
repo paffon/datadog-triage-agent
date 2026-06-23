@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from ..agent import triage
-from ..config import Settings, fixtures_dir, force_utf8_stdout
+from ..config import Settings, fixtures_dir, force_utf8_stdout, setup_trace, trace_level
 from ..llm import get_llm
 from ..llm.base import LLMClient
 from ..mcp_backends import get_mcp_client
@@ -21,6 +23,8 @@ from .judge import judge
 from .rubric import DIMENSIONS, MAX_PER_DIM
 
 MAX_TOTAL = len(DIMENSIONS) * MAX_PER_DIM
+
+log = logging.getLogger("triage.harness")  # info = trace level 1
 
 
 def discover_incident_ids() -> list[str]:
@@ -42,6 +46,7 @@ async def run_cases(
 ) -> dict[str, Any]:
     cases: list[dict[str, Any]] = []
     for iid in incident_ids:
+        log.info("══ %s ══", iid)
         try:
             fixture = _load_fixture(iid)
             ground_truth = fixture["ground_truth"]
@@ -111,6 +116,7 @@ def _save(report: dict[str, Any]) -> Path:
 
 def main() -> None:
     force_utf8_stdout()
+    setup_trace(trace_level(sys.argv[1:]))
     s = Settings.from_env()
     ids = discover_incident_ids()
 

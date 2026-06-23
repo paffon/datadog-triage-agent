@@ -1,12 +1,14 @@
 #!/usr/bin/env pwsh
 # Task runner (Windows-first). Usage: ./run.ps1 <task> [args...]
 #   demo | eval | mock-server | test | lint | typecheck
-# demo/eval/mock-server target modules that land in later phases.
+# Args after the task pass through verbatim, e.g. `demo INC-1003 -v` (trace level).
+#
+# Read args from $args rather than a param() block: a [Parameter()] block makes
+# this an advanced function, which binds -v as the common -Verbose flag and
+# swallows it before it reaches Python. $args keeps every token literal.
 
-param(
-    [Parameter(Position = 0)][string]$Task = "help",
-    [Parameter(ValueFromRemainingArguments = $true)]$Rest
-)
+$Task = if ($args.Count -ge 1) { $args[0] } else { "help" }
+$Rest = @($args | Select-Object -Skip 1)  # @() so a lone arg stays an array, not a string that @Rest splats char-by-char
 
 $ErrorActionPreference = "Stop"
 

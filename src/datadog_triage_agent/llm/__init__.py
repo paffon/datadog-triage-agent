@@ -11,7 +11,7 @@ def get_llm(provider: str = "cli", model: str = "haiku") -> LLMClient:
     if provider == "cli":
         return ClaudeCLI(model=model)
     if provider == "anthropic":
-        raise LLMError(
-            "Anthropic SDK provider not wired yet (Phase 5). Use TRIAGE_LLM=cli."
-        )
+        from .anthropic_sdk import AnthropicSDK  # lazy: keeps `anthropic` an optional dep
+
+        return AnthropicSDK(model=model)
     raise LLMError(f"unknown TRIAGE_LLM provider: {provider!r} (use cli | anthropic)")

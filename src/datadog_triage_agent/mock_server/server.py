@@ -46,11 +46,17 @@ def search_logs(
     # fixtures are a fixed point-in-time snapshot so it's a no-op here. Wire real
     # time-windowing only against the live Datadog backend.
     q = query.lower()
+
+    def matches(e: dict[str, Any]) -> bool:
+        hay = e["message"].lower()
+        if e.get("status_code") is not None:
+            hay += f" {e['status_code']}"  # so "504" finds logs that record it as a code
+        return not q or q in hay
+
     hits = [
         e
         for e in _load_all("logs")
-        if (not q or q in e["message"].lower())
-        and (service is None or e["service"] == service)
+        if matches(e) and (service is None or e["service"] == service)
     ]
     return hits[:limit]
 

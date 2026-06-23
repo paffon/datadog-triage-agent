@@ -30,5 +30,10 @@ target-version = "py310"
 python_version = "3.10"
 strict = true
 
+# `anthropic` is an optional extra; not installed in the default/typecheck env.
+[[tool.mypy.overrides]]
+module = "anthropic.*"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
