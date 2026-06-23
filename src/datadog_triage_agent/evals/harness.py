@@ -16,6 +16,7 @@ from typing import Any
 
 from ..agent import triage
 from ..config import Settings, fixtures_dir, force_utf8_stdout, setup_trace, trace_level
+from ..console import paint, supports_color
 from ..llm import get_llm
 from ..llm.base import LLMClient
 from ..mcp_backends import get_mcp_client
@@ -84,24 +85,48 @@ def _aggregate(cases: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+_SCORE_COLOR = {0: "red", 1: "yellow", 2: "green"}
+
+
 def _print_scoreboard(report: dict[str, Any]) -> None:
-    print(f"\n{'incident':<12} {'rc':>3} {'repro':>6} {'grnd':>5} {'total':>7}  note")
-    print("-" * 60)
-    for c in report["cases"]:
-        s = c["scores"]
-        note = c.get("error") or c.get("confidence") or ""
-        print(
-            f"{c['incident_id']:<12} {s['root_cause']:>3} {s['reproduction']:>6} "
-            f"{s['grounding']:>5} {c['total']:>4}/{MAX_TOTAL}  {note}"
-        )
+    color = supports_color(sys.stdout)
+
+    def c(text: str, *styles: str) -> str:
+        return paint(text, *styles, enabled=color)
+
+    def cell(value: int, width: int, style: str) -> str:
+        return c(f"{value:>{width}}", style)  # pad to width first, then color (codes are 0-width)
+
+    print()
+    print(c(f"{'incident':<12} {'rc':>3} {'repro':>6} {'grnd':>5} {'total':>7}  note", "bold"))
+    print(c("-" * 60, "dim"))
+    for case in report["cases"]:
+        s = case["scores"]
+        total = case["total"]
+        total_style = "green" if total == MAX_TOTAL else "red" if total == 0 else "yellow"
+        if case.get("error"):
+            note = c(case["error"], "red")
+        elif case.get("confidence") == "high":
+            note = c("high", "green")
+        else:
+            note = case.get("confidence") or ""
+        iid = c(f"{case['incident_id']:<12}", "cyan")
+        rc = cell(s["root_cause"], 3, _SCORE_COLOR[s["root_cause"]])
+        repro = cell(s["reproduction"], 6, _SCORE_COLOR[s["reproduction"]])
+        grnd = cell(s["grounding"], 5, _SCORE_COLOR[s["grounding"]])
+        print(f"{iid} {rc} {repro} {grnd} {cell(total, 4, total_style)}/{MAX_TOTAL}  {note}")
     agg = report["aggregate"]
-    print("-" * 60)
+    print(c("-" * 60, "dim"))
     print(
-        f"means: root_cause={agg['by_dimension']['root_cause']} "
-        f"reproduction={agg['by_dimension']['reproduction']} "
-        f"grounding={agg['by_dimension']['grounding']}  "
-        f"total={agg['total_mean']}/{agg['max_total']} over {agg['n']} incidents\n"
+        c(
+            f"means: root_cause={agg['by_dimension']['root_cause']} "
+            f"reproduction={agg['by_dimension']['reproduction']} "
+            f"grounding={agg['by_dimension']['grounding']}  "
+            f"total={agg['total_mean']}/{agg['max_total']} over {agg['n']} incidents",
+            "bold",
+        )
     )
+    print()
 
 
 def _save(report: dict[str, Any]) -> Path:

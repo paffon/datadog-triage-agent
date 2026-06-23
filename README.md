@@ -58,6 +58,10 @@ the decision-by-decision log (with the gotchas I hit and how I solved them) in
 
 ## Walkthrough
 
+The `demo` and `eval` output is color-coded in a terminal — evidence sources, confidence,
+and judge scores each get their own color — and degrades to clean plain text when piped or
+redirected. The sample blocks below show the same content without color.
+
 ### 1. Triage a single incident — `.\run.ps1 demo`
 
 The agent investigates INC-1001 end-to-end and prints a populated `TriageResult`. It

@@ -13,6 +13,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from .console import TraceFormatter, supports_color
+
 load_dotenv()  # no-op if there's no .env; real environment variables take precedence
 
 TRACE = 5  # custom log level below DEBUG: raw LLM transport (level-3 trace)
@@ -46,8 +48,14 @@ def setup_trace(level: int) -> None:
         return
     if isinstance(sys.stderr, io.TextIOWrapper):
         sys.stderr.reconfigure(encoding="utf-8")  # same cp1252 reason as force_utf8_stdout
-    logging.basicConfig(stream=sys.stderr, format="%(message)s")
-    logging.getLogger("triage").setLevel({1: logging.INFO, 2: logging.DEBUG, 3: TRACE}[level])
+    triage = logging.getLogger("triage")
+    if not any(getattr(h, "_triage_handler", False) for h in triage.handlers):
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setFormatter(TraceFormatter(supports_color(sys.stderr)))
+        handler._triage_handler = True  # type: ignore[attr-defined]  # idempotency marker
+        triage.addHandler(handler)
+        triage.propagate = False  # our handler is the only sink — no duplicate lines
+    triage.setLevel({1: logging.INFO, 2: logging.DEBUG, 3: TRACE}[level])
 
 
 @dataclass(frozen=True)
