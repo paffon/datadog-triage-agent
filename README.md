@@ -20,29 +20,36 @@ the decision-by-decision log (with the gotchas I hit and how I solved them) in
 
 ## How it works
 
-```
-   incident_id  ->  +------------------------------+  -> TriageResult
-                    |        agent loop            |     { root_cause, confidence,
-                    |  (hand-rolled, capped turns) |       evidence[], repro_steps[],
-                    |  plan -> call tool -> observe |       candidate_fix }
-                    +---------+----------+---------+
-                              |          |
-               complete(msgs, |          | call_tool(name, args)
-                      tools)  v          v
-            +---------------------+   +---------------------------+
-            | LLM provider (1 fn) |   | MCP client (1 interface)  |
-            |  complete(messages, |   |  get_incident /           |
-            |           tools)    |   |  search_logs / get_traces |
-            |  - claude_cli (def.) |   +----+-----------------+----+
-            |  - anthropic_sdk    |        | TRIAGE_BACKEND= |
-            +---------------------+        v mock            v datadog
-                                    +------------+    +----------------+
-                                    | mock MCP   |    | Datadog remote |
-                                    | server     |    | MCP (HTTP,     |
-                                    | (FastMCP,  |    | opt-in, creds) |
-                                    | stdio,     |    +----------------+
-                                    | fixtures)  |
-                                    +------------+
+```mermaid
+flowchart TD
+    Input["incident_id"] --> Loop
+    Loop["Agent loop<br/>(hand-rolled, capped turns)<br/>plan → call tool → observe"] --> Output["TriageResult<br/>root_cause, confidence,<br/>evidence, reproduction_steps,<br/>candidate_fix"]
+
+    Loop -- "complete(messages, tools)" --> LLMProvider
+    Loop -- "call_tool(name, arguments)" --> MCPClient
+
+    subgraph LLMProvider["LLM provider (one function: complete(messages, tools) → text)"]
+        direction LR
+        ClaudeCLI["claude_cli (default)<br/>claude -p subprocess"]
+        AnthropicSDK["anthropic_sdk (swappable)<br/>Anthropic Python SDK"]
+    end
+
+    subgraph MCPClient["MCP client (one interface: get_incident / search_logs / get_traces)"]
+        direction LR
+        BackendSelect{"TRIAGE_BACKEND"}
+        BackendSelect -- "mock (default)" --> MockServer["Mock MCP server<br/>FastMCP over stdio<br/>serves local fixtures"]
+        BackendSelect -- "datadog (opt-in)" --> DatadogServer["Datadog remote MCP server<br/>streamable HTTP<br/>requires credentials"]
+    end
+
+    Eval["Evaluation harness:<br/>run the agent over every ground-truth incident<br/>→ LLM-as-judge scores three dimensions<br/>→ per-incident and aggregate scoreboard → JSON"]
+    Output -.-> Eval
+
+    classDef io fill:#1f4068,stroke:#5b8def,color:#ffffff
+    classDef loop fill:#162447,stroke:#5b8def,color:#ffffff
+    classDef eval fill:#0f3460,stroke:#5b8def,color:#ffffff,font-style:italic
+    class Input,Output io
+    class Loop loop
+    class Eval eval
 ```
 
 - The LLM is driven as a **pure text engine** behind a single function,
@@ -73,7 +80,7 @@ in a log line or span it actually retrieved.
 
 <details><summary>Sample output (text)</summary>
 
-```
+```txt
 Incident:    INC-1001
 Confidence:  high
 
@@ -122,7 +129,7 @@ penalizes confident-but-unsupported answers rather than rewarding fluency.
 
 <details><summary>Sample output (text)</summary>
 
-```
+```txt
 incident      rc  repro  grnd   total  note
 ------------------------------------------------------------
 INC-1001       1      1     2    4/6  high
@@ -279,7 +286,7 @@ through them, is in [`docs/DECISIONS.md`](docs/DECISIONS.md):
 
 ## Project layout
 
-```
+```txt
 src/datadog_triage_agent/
   agent.py            # the hand-rolled async triage loop
   prompts.py          # system prompt + in-prompt JSON tool protocol
