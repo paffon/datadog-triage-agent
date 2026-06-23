@@ -31,10 +31,12 @@ the loop's parser trivially testable with a scripted fake LLM. The cost — occa
 malformed-JSON retries — is handled by the loop's corrective nudge, which counts against
 the turn budget.
 
-The transcript handed to `claude -p` is a flat role-tagged log (`[role]\n<content>`),
-built the same way every call — deterministic by construction, so identical turns render
-identically and prompt caching holds. No per-call wording variation; the model never sees
-gratuitous noise in front of the JSON it's asked to emit.
+The transcript handed to `claude -p` frames each message as narrative prose with a
+randomly chosen connective ("And then user said: ..."). This reverses the earlier
+deterministic, no-wording-variation design: in practice the conversational framing
+measurably lowered the agent's hallucination rate (the result of many trials), which we
+judged worth more than the prompt-cache hits that determinism bought. Trade-off accepted:
+identical turns no longer render identically, so the cache no longer holds across calls.
 
 ### Decision: `complete()` is synchronous even though the loop is async
 

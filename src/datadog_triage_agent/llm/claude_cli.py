@@ -39,9 +39,30 @@ class ClaudeCLI:
     binary: str = "claude"
     timeout: float = 120.0
 
+    def _random_wording(self) -> str:
+        wording_options = [
+            "And then {} said: {}",
+            "Then the {} remarked: {}",
+            "So then {} stated: {}",
+            "After that, {} chimed in: {}",
+            "Next, {} added: {}",
+            "Following that, {} declared: {}",
+            "In return, {} responded: {}",
+        ]
+
+        random_index = os.urandom(1)[0] % len(wording_options)
+        return wording_options[random_index]
+
+    # Per-call wording variation: each message is framed as narrative prose with a
+    # randomly chosen connective. This is a deliberate U-turn on the earlier
+    # "deterministic, no gratuitous noise" transcript design — empirically it cuts
+    # the agent's hallucination rate, the result of many trials. The cost is lost
+    # prompt-cache hits (identical turns no longer render identically). See DECISIONS.md.
     def _construct_transcript(self, messages: list[LLMMessage]) -> str:
         transcript = "\n\n".join(
-            f"[{m.role}]\n{m.content}" for m in messages if m.role != "system"
+            self._random_wording().format(m.role, m.content)
+            for m in messages
+            if m.role != "system"
         )
         end_with = (
             "Now write only the next assistant message: a single JSON object and nothing else — "
